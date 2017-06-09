@@ -1,0 +1,347 @@
+body {
+    font-family: "helvetica";
+}
+
+button {
+	height: 100px;
+	width: 25px;
+    margin: -38px 1px 7px 0;
+    background-color: #f5f5f5;
+    border: 1px solid #dedede;
+    border-top: 1px solid #eee;
+    border-left: 1px solid #eee;
+	border-radius:5px;
+
+    font-size: 12px;
+    line-height: 130%;
+    text-decoration: none;
+    font-weight: bold;
+    color: #565656;
+    cursor: pointer;
+}
+
+@keyframes shadeIn
+{
+from {opacity: 0;}
+to {opacity:	1;}
+}
+
+@-webkit-keyframes shadeIn /*Safari and Chrome*/
+{
+from {opacity: 0;}
+to {opacity: 1;}
+}
+
+@keyframes titleIn
+{
+from {margin-left: -620px;opacity: 0;}
+to {margin-left: 0px;opacity: 1;}
+}
+
+@-webkit-keyframes titleIn /*Safari and Chrome*/
+{
+from {margin-left: -620px;opacity: 0;}
+to {margin-left: 0px;opacity: 1;}
+}
+
+#basicInform{
+	width: 620px;
+	height: 100px;
+	line-height: 50px;
+	text-align: center;
+	margin: 20px 0 0 0;
+}
+
+.name{
+	font-size: 30px;
+	margin: 10px 0 0 0px;
+	vertical-align: middle;
+		
+	animation:titleIn 1s normal;
+	-webkit-animation:titleIn 1s normal;
+}
+
+.detail{
+	font-size: 18px;
+	margin: 0px 0px 50px 0px;
+	vertical-align: middle;
+	
+	animation:titleIn 1.5s normal;
+	-webkit-animation:titleIn 1.5s normal;
+}
+
+#photoBox{
+	width: 270px;
+	text-align: center;
+	margin: -100px 0 0 607px;
+	position: absolute;
+}
+
+.photo{
+	height: 250px;
+	border-radius:100px;
+	
+	animation:shadeIn 2s normal;
+	-webkit-animation:shadeIn 2s normal;
+}
+
+
+.cell {
+
+    min-height: 18px;
+    margin: 2px 0px 1px 0px;
+    float: left;
+    text-align: center;
+    border: #969696 solid 0px;
+    padding: 5px;
+	color: #f0f8ff;
+}
+
+.colorBox {
+    /*clear: both;*/
+	width: 280px;
+	position: absolute;
+	margin: 175px 0 0 627px;
+}
+
+.control-group {
+    padding: 10px 0px 0px 35px;
+    margin: 10px;
+}
+
+.chartButton{
+	width: 150px;
+	height: 30px;
+}
+
+#hist{
+	margin: 296px 0 0 10px;
+	position: absolute;
+	width: 270px;
+	z-index: -1;
+	
+	animation:shadeIn 1s normal;
+	-webkit-animation:shadeIn 1s normal;
+}
+
+/*************************Index******************************/
+.control-menu{
+	padding: 0px 0px 0px 0px;
+    margin: 5px 0px 5px 0px;
+	width: 400px;
+	text-align: center;
+}
+
+.menuBox{
+	width: 400px;
+
+}
+
+.h-bar {
+    min-height: 10px;
+    background-color: #7db9de;
+    margin: 3px;
+	padding: 4px;
+    color: #f0f8ff;
+	font-size: 11px;
+    float: left;
+    text-align: center;
+	border-radius: 10px;
+	
+}
+
+.h-bar a{
+	text-decoration: none;
+	color: white;
+}
+
+.h-bar:hover{
+	background-color: #df3838;
+}
+
+.selected {
+    /*display: none;*/
+	background-color: #ffc408;
+}
+
+#iframeBox{
+	position: absolute; 
+	margin: -110px 0 0 410px;
+}
+
+.title{
+	z-index: -1;
+	position: absolute; 
+	text-align: center;
+	margin: 180px 0 0 200px;
+	font-size: 38px;
+}
+
+
+
+
+
+
+.box {
+    width: 200px;
+    height: 200px;
+    margin: 40px;
+    float: left;
+    text-align: center;
+    border: #969696 solid thin;
+    padding: 5px;
+}
+
+.red {
+    background-color: #e9967a;
+    color: #f0f8ff;
+}
+
+.blue {
+    background-color: #add8e6;
+    color: #f0f8ff;
+}
+
+
+
+.v-bar {
+    min-height: 1px;
+    min-width: 30px;
+    background-color: #4682b4;
+    margin-right: 2px;
+    font-size: 10px;
+    color: #f0f8ff;
+    text-align: center;
+    width: 10px;
+    display: inline-block;
+}
+
+.baseline {
+    height: 1px;
+    background-color: black;
+}
+
+
+
+.table {
+    width: 70%;
+}
+
+.table td, th {
+    padding: 5px;
+}
+
+.table-header {
+    background-color: #00AFEF;
+    font-weight: bold;
+}
+
+.table-row-odd {
+    background-color: #f0f8ff;
+}
+
+.table-row-odd {
+    background-color: #d3d3d3;
+}
+
+.code {
+    display: inline-block;
+    font-style: italic;
+    background-color: #d3d3d3;
+    border: #969696 solid thin;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.countdown{
+    width: 150px;
+    height: 150px;
+    font-size: 5em;
+    font-weight: bold;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font: 10px sans-serif;
+}
+
+.axis .grid-line{
+    stroke: black;
+    shape-rendering: crispEdges;
+    stroke-opacity: .2;
+	position: fixed;
+	margin: 270px 0 0 0;
+}
+
+.line{
+    fill: none;    
+    stroke: steelblue;
+    stroke-width: 2;
+}
+
+.dot {
+  fill: #fff;
+  stroke: steelblue;
+}
+
+.area {
+    stroke: none;
+    fill: steelblue;
+    fill-opacity: .2;
+}
+
+.pie text{
+    fill: white;
+    font-weight: bold;
+}
+
+.circle {
+    stroke: none;
+    fill: red;
+    fill-opacity: .7;
+}
+
+.cross {
+    stroke: none;
+    fill: blue;
+    fill-opacity: .7;
+}
+
+.diamond {
+    stroke: none;
+    fill: green;
+    fill-opacity: .7;
+}
+
+.square{
+    stroke: none;
+    fill: yellow;
+    fill-opacity: .7;
+}
+
+.triangle-down{
+    stroke: none;
+    fill: blueviolet;
+    fill-opacity: .7;
+}
+
+.triangle-up{
+    stroke: none;
+    fill: darkred;
+    fill-opacity: .7;
+}
+
+.bubble{
+    fill-opacity: .3;
+}
+
+.bar{
+    stroke: none;
+    fill: steelblue;
+}
