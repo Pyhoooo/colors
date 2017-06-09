@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>All Chart</title>
+	<script>document.write("<base href=" + document.location.href + "/../../images/毕加索-3/>");//文件夹名字不能有空格</script>
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css"/>
+    <script type="text/javascript" src="../../lib/d3.js"></script>
+</head>
+
+<body>
+
+<div id="basicInform">
+	<span class="name"><b>Pablo Picasso 毕加索<br></b></span>
+	<span class="detail">1919-1930
+&nbsp;&nbsp;西班牙
+&nbsp;&nbsp;多变
+&nbsp;&nbsp;Images: 153</span>
+</div>
+
+<div id="photoBox">
+	<img class="photo" src="0.jpg"/>
+</div>
+
+<div id="color-diverge" class="colorBox">
+	
+</div>
+
+<div id="hist">
+	<img width=570px src="2.jpg"/><br/>
+	<img width=570px src="1.jpg"/>
+	<img width=600px style="margin: 240px 0 130px 130px; opacity: 0.8;" src="3.jpg"/>
+</div>
+
+
+<div class="control-group">
+    <button class="chartButton" onclick="Line()">Line</button>
+	<button class="chartButton" onclick="Area()">Area</button>
+	<button class="chartButton" onclick="Pie()">Pie</button>
+
+</div>
+
+
+
+<script type="text/javascript">
+	
+function Area() {
+	
+	d3.select("svg").remove();//首先清除原有的svg
+	
+	var numberOfSeries = 3,
+    numberOfDataPoint = 10,
+	red = [223, 223, 223, 223, 223, 223, 191, 223, 128, 191], green = [223, 223, 216, 205, 223, 99, 161, 188, 107, 24], blue = [223, 223, 195, 195, 223, 28, 143, 167, 48, 24],
+
+	data = [];
+
+function areaChart() { // <-1A
+	
+    var _chart = {};
+
+    var _width = 600, _height = 300, // <-1B
+            _margins = {top: 10, left: 30, right: 30, bottom: 30},
+            _x, _y,
+            _data = [],
+            _colors = d3.scale.category10(),
+            _svg,
+            _bodyG,
+            _line;
+
+    _chart.render = function () { // <-2A
+        if (!_svg) {
+            _svg = d3.select("body").append("svg") // <-2B
+                    .attr("height", _height)
+                    .attr("width", _width);
+
+            renderAxes(_svg);
+
+            defineBodyClip(_svg);
+        }
+
+        renderBody(_svg);
+    };
+
+    function renderAxes(svg) {
+        var axesG = svg.append("g")
+                .attr("class", "axes");
+
+        renderXAxis(axesG);
+
+        renderYAxis(axesG);
+    }
+    
+    function renderXAxis(axesG){
+        var xAxis = d3.svg.axis()
+                .scale(_x.range([0, quadrantWidth()]))
+                .orient("bottom");        
+
+        axesG.append("g")
+                .attr("class", "x axis")
+                .attr("transform", function () {
+                    return "translate(" + xStart() + "," + yStart() + ")";
+                })
+                .call(xAxis);
+                
+        d3.selectAll("g.x g.tick")
+            .append("line")
+                .classed("grid-line", true)
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", 0)
+                .attr("y2", - quadrantHeight());
+    }
+    
+    function renderYAxis(axesG){
+        var yAxis = d3.svg.axis()
+                .scale(_y.range([quadrantHeight(), 0]))
+                .orient("left");
+                
+        axesG.append("g")
+                .attr("class", "y axis")
+                .attr("transform", function () {
+                    return "translate(" + xStart() + "," + yEnd() + ")";
+                })
+                .call(yAxis);
+                
+         d3.selectAll("g.y g.tick")
+            .append("line")
+                .classed("grid-line", true)
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", quadrantWidth())
+                .attr("y2", 0);
+    }
+
+    function defineBodyClip(svg) { // <-2C
+        var padding = 5;
+
+        svg.append("defs")
+                .append("clipPath")
+                .attr("id", "body-clip")
+                .append("rect")
+                .attr("x", 0 - padding)
+                .attr("y", 0)
+                .attr("width", quadrantWidth() + 2 * padding)
+                .attr("height", quadrantHeight());
+    }
+
+    function renderBody(svg) { // <-2D
+        if (!_bodyG)
+            _bodyG = svg.append("g")
+                    .attr("class", "body")
+                    .attr("transform", "translate(" 
+                        + xStart() + "," 
+                        + yEnd() + ")") // <-2E
+                    .attr("clip-path", "url(#body-clip)");        
+
+        renderLines();
+		
+		renderAreas();//多了这个
+		
+        renderDots();
+    }
+
+    function renderLines() {
+        _line = d3.svg.line() //<-4A
+                        .x(function (d) { return _x(d.x); })
+                        .y(function (d) { return _y(d.y); });
+                        
+        _bodyG.selectAll("path.line")
+                    .data(_data)
+                .enter() //<-4B
+                .append("path")                
+                .style("stroke", function (d, i) { 
+                    return _colors(i); //<-4C
+                })
+                .attr("class", "line");
+
+        _bodyG.selectAll("path.line")
+                .data(_data)
+                	.style("opacity","0")//实现渐变
+					
+				.transition() //<-4D
+				.duration(600)
+					.style("opacity","1")
+                .attr("d", function (d) { return _line(d); });
+    }
+
+    function renderAreas() {
+        var area = d3.svg.area() // <-A
+                    .x(function(d) { return _x(d.x); })
+                    .y0(yStart())
+                    .y1(function(d) { return _y(d.y); });
+
+        _bodyG.selectAll("path.area")
+                .data(_data)
+                .enter() // <-B
+                .append("path")
+                .style("fill", function (d, i) { 
+                    return _colors(i); 
+                })
+                .attr("class", "area");
+
+        _bodyG.selectAll("path.area")
+                .data(_data)
+                	.style("opacity","0")//实现渐变
+					
+				.transition() //<-4D
+				.duration(800)
+					.style("opacity","1")
+                .attr("d", function (d) { 
+                    return area(d); // <-E
+                });
+    }	
+	
+    function renderDots() {
+        _data.forEach(function (list, i) {
+            _bodyG.selectAll("circle._" + i) //<-4E
+                        .data(list)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "dot _" + i);
+
+            _bodyG.selectAll("circle._" + i)
+                    .data(list)                    
+                    .style("stroke", function (d) { 
+                        return _colors(i); //<-4F
+                    })
+                	.style("opacity","0")//实现渐变
+					
+				.transition() //<-4G
+				.duration(1000)
+					.style("opacity","1")
+                    .attr("cx", function (d) { return _x(d.x); })
+                    .attr("cy", function (d) { return _y(d.y); })
+                    .attr("r", 4.5);
+        });
+    }
+
+    function xStart() {
+        return _margins.left;
+    }
+
+    function yStart() {
+        return _height - _margins.bottom;
+    }
+
+    function xEnd() {
+        return _width - _margins.right;
+    }
+
+    function yEnd() {
+        return _margins.top;
+    }
+
+    function quadrantWidth() {
+        return _width - _margins.left - _margins.right;
+    }
+
+    function quadrantHeight() {
+        return _height - _margins.top - _margins.bottom;
+    }
+
+    _chart.width = function (w) {
+        if (!arguments.length) return _width;
+        _width = w;
+        return _chart;
+    };
+
+    _chart.height = function (h) { // <-1C
+        if (!arguments.length) return _height;
+        _height = h;
+        return _chart;
+    };
+
+    _chart.margins = function (m) {
+        if (!arguments.length) return _margins;
+        _margins = m;
+        return _chart;
+    };
+
+    _chart.colors = function (c) {
+        if (!arguments.length) return _colors;
+        _colors = c;
+        return _chart;
+    };
+
+    _chart.x = function (x) {
+        if (!arguments.length) return _x;
+        _x = x;
+        return _chart;
+    };
+
+    _chart.y = function (y) {
+        if (!arguments.length) return _y;
+        _y = y;
+        return _chart;
+    };
+
+    _chart.addSeries = function (series) { // <-1D
+        _data.push(series);
+        return _chart;
+    };
+
+    return _chart; // <-1E
+}
+
+for (var i = 0; i < numberOfSeries; ++i){//不同线不同数据
+	if(i == 0){
+	blue.push(d3.range(numberOfDataPoint).map(function (i) {
+        return {x: i, y: blue[i]};//y的赋值为data[i]//function (d){return d.red}
+	}))           
+	}
+	if(i == 1){
+	red.push(d3.range(numberOfDataPoint).map(function (i) {
+        return {x: i, y: red[i]};//y的赋值为data[i]//function (d){return d.red}
+	}))
+	}
+	if(i == 2){
+	green.push(d3.range(numberOfDataPoint).map(function (i) {
+        return {x: i, y: green[i]};//y的赋值为data[i]//function (d){return d.red}
+	}))
+	}
+	};
+
+
+var chart = areaChart()
+        .x(d3.scale.linear().domain([0, 9]))
+        .y(d3.scale.linear().domain([0, 255]));
+
+blue.forEach(function (series) {
+    chart.addSeries(series);
+});
+red.forEach(function (series) {
+    chart.addSeries(series);
+});
+green.forEach(function (series) {
+    chart.addSeries(series);
+});
+
+
+chart.render();
+}
+
+function Line() {
+
+	d3.select("svg").remove();//首先清除原有的svg
+
+	var numberOfSeries = 3,
+    numberOfDataPoint = 10,
+	red = [223, 223, 223, 223, 223, 223, 191, 223, 128, 191], green = [223, 223, 216, 205, 223, 99, 161, 188, 107, 24], blue = [223, 223, 195, 195, 223, 28, 143, 167, 48, 24],
+
+	data = [];	
+	
+function lineChart() { // <-1A
+    var _chart = {};
+
+    var _width = 600, _height = 300, // <-1B
+            _margins = {top: 10, left: 30, right: 30, bottom: 30},
+            _x, _y,
+            _data = [],
+            _colors = //d3.scale.linear()
+						//.domain([0,1,2])
+						//.range(["rgb(256,70,70)", "rgb(70,256,70)", "rgb(70,70,256)"]),
+						d3.scale.category10(),
+            _svg,
+            _bodyG,
+            _line;
+
+    _chart.render = function () { // <-2A
+        if (!_svg) {
+            _svg = d3.select("body").append("svg") // <-2B
+                    .attr("height", _height)
+                    .attr("width", _width);
+
+            renderAxes(_svg);
+
+            defineBodyClip(_svg);
+        }
+
+        renderBody(_svg);
+    };
+
+    function renderAxes(svg) {
+        var axesG = svg.append("g")
+                .attr("class", "axes");
+
+        renderXAxis(axesG);
+
+        renderYAxis(axesG);
+    }
+    
+    function renderXAxis(axesG){
+        var xAxis = d3.svg.axis()
+                .scale(_x.range([0, quadrantWidth()]))
+                .orient("bottom");        
+
+        axesG.append("g")
+                .attr("class", "x axis")
+                .attr("transform", function () {
+                    return "translate(" + xStart() + "," + yStart() + ")";
+                })
+                .call(xAxis);
+                
+        d3.selectAll("g.x g.tick")
+            .append("line")
+                .classed("grid-line", true)
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", 0)
+                .attr("y2", - quadrantHeight());
+    }
+    
+    function renderYAxis(axesG){
+        var yAxis = d3.svg.axis()
+                .scale(_y.range([quadrantHeight(), 0]))
+                .orient("left");
+                
+        axesG.append("g")
+                .attr("class", "y axis")
+                .attr("transform", function () {
+                    return "translate(" + xStart() + "," + yEnd() + ")";
+                })
+                .call(yAxis);
+                
+         d3.selectAll("g.y g.tick")
+            .append("line")
+                .classed("grid-line", true)
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", quadrantWidth())
+                .attr("y2", 0);
+    }
+
+    function defineBodyClip(svg) { // <-2C
+        var padding = 5;
+
+        svg.append("defs")
+                .append("clipPath")
+                .attr("id", "body-clip")
+                .append("rect")
+                .attr("x", 0 - padding)
+                .attr("y", 0)
+                .attr("width", quadrantWidth() + 2 * padding)
+                .attr("height", quadrantHeight());
+    }
+
+    function renderBody(svg) { // <-2D
+        if (!_bodyG)
+            _bodyG = svg.append("g")
+                    .attr("class", "body")
+                    .attr("transform", "translate(" 
+                        + xStart() + "," 
+                        + yEnd() + ")") // <-2E
+                    .attr("clip-path", "url(#body-clip)");        
+
+        renderLines();
+
+        renderDots();
+
+    }
+
+    function renderLines() {
+        _line = d3.svg.line() //<-4A
+                        .x(function (d) { return _x(d.x); })
+                        .y(function (d) { return _y(d.y); });
+                        
+        _bodyG.selectAll("path.line")
+                    .data(_data)
+                .enter() //<-4B
+                .append("path")		
+                .style("stroke", function (d, i) { 
+                    return _colors(i); //<-4C
+                })
+                .attr("class", "line")
+				
+        _bodyG.selectAll("path.line")
+                .data(_data)
+					.style("opacity","0")//实现渐变
+					
+                .transition() //<-4D
+				.duration(600)
+					.style("opacity","1")
+                .attr("d", function (d) { return _line(d); })
+    }
+
+    function renderDots() {
+        _data.forEach(function (list, i) {
+            _bodyG.selectAll("circle._" + i) //<-4E
+                        .data(list)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "dot _" + i);
+					
+
+            _bodyG.selectAll("circle._" + i)
+                    .data(list)                    
+                    .style("stroke", function (d) { 
+                        return _colors(i); //<-4F
+                    })
+						.style("opacity","0")//实现渐变
+					
+					.transition() //<-4G
+					.duration(1000)
+						.style("opacity","1")
+                    .attr("cx", function (d) { return _x(d.x); })
+                    .attr("cy", function (d) { return _y(d.y); })
+                    .attr("r", 4.5);
+					
+					
+        });
+				
+    }
+			
+
+    function xStart() {
+        return _margins.left;
+    }
+
+    function yStart() {
+        return _height - _margins.bottom;
+    }
+
+    function xEnd() {
+        return _width - _margins.right;
+    }
+
+    function yEnd() {
+        return _margins.top;
+    }
+
+    function quadrantWidth() {
+        return _width - _margins.left - _margins.right;
+    }
+
+    function quadrantHeight() {
+        return _height - _margins.top - _margins.bottom;
+    }
+
+    _chart.width = function (w) {
+        if (!arguments.length) return _width;
+        _width = w;
+        return _chart;
+    };
+
+    _chart.height = function (h) { // <-1C
+        if (!arguments.length) return _height;
+        _height = h;
+        return _chart;
+    };
+
+    _chart.margins = function (m) {
+        if (!arguments.length) return _margins;
+        _margins = m;
+        return _chart;
+    };
+
+    _chart.colors = function (c) {
+        if (!arguments.length) return _colors;
+        _colors = c;
+        return _chart;
+    };
+
+    _chart.x = function (x) {
+        if (!arguments.length) return _x;
+        _x = x;
+        return _chart;
+    };
+
+    _chart.y = function (y) {
+        if (!arguments.length) return _y;
+        _y = y;
+        return _chart;
+    };
+
+    _chart.addSeries = function (series) { // <-1D
+        _data.push(series);
+        return _chart;
+    };
+
+    return _chart; // <-1E
+}
+
+
+for (var i = 0; i < numberOfSeries; ++i){//不同线不同数据
+	if(i == 0){
+	blue.push(d3.range(numberOfDataPoint).map(function (i) {
+        return {x: i, y: blue[i]};//y的赋值为data[i]//function (d){return d.red}
+	}))           
+	}
+	if(i == 1){
+	red.push(d3.range(numberOfDataPoint).map(function (i) {
+        return {x: i, y: red[i]};//y的赋值为data[i]//function (d){return d.red}
+	}))
+	}
+	if(i == 2){
+	green.push(d3.range(numberOfDataPoint).map(function (i) {
+        return {x: i, y: green[i]};//y的赋值为data[i]//function (d){return d.red}
+	}))
+	}
+	};
+
+var chart = lineChart()
+        .x(d3.scale.linear().domain([0, 9]))
+        .y(d3.scale.linear().domain([0, 255]));
+
+blue.forEach(function (series) {
+    chart.addSeries(series);
+});
+red.forEach(function (series) {
+    chart.addSeries(series);
+});
+green.forEach(function (series) {
+    chart.addSeries(series);
+});
+
+
+chart.render();
+}
+
+function Pie() {
+
+	d3.select("svg").remove();//首先清除原有的svg
+
+    function pieChart() {
+        var _chart = {};
+
+        var _width = 600, _height = 300,
+				_margins = {top: 0, left: 130, right: 0, bottom: 0},
+                _data = [],
+                _colors = d3.scale.linear()
+							.domain([0,1,2,3,4,5,6,7,8,9,10])
+							.range(["rgb(223,223,223)", "rgb(223,223,223)", "rgb(223,216,195)", "rgb(223,205,195)", "rgb(223,223,223)", "rgb(223,99,28)", "rgb(191,161,143)", "rgb(223,188,167)", "rgb(128,107,48)", "rgb(191,24,24)"]),
+
+                _svg,
+                _bodyG,
+                _pieG,
+                _radius = 150,
+                _innerRadius = 70;
+
+        _chart.render = function () {
+            if (!_svg) {
+                _svg = d3.select("body").append("svg")
+                        .attr("height", _height)
+                        .attr("width", _width);
+            }
+
+            renderBody(_svg);
+        };
+
+        function renderBody(svg) {
+            if (!_bodyG)
+                _bodyG = svg.append("g")
+						.attr("transform", "translate(" 
+                        + xStart() + "," 
+                        + yEnd() + ")")//为了让pie居中
+                        .attr("class", "body");
+					
+            renderPie();
+        }
+
+        function renderPie() {
+            var pie = d3.layout.pie() // <-A
+                    .sort(function (d) {
+                        return d.id;
+                    })
+                    .value(function (d) {
+                        return d.value;
+                    });
+
+            var arc = d3.svg.arc()
+                    .outerRadius(_radius)
+                    .innerRadius(_innerRadius);
+
+            if (!_pieG)
+                _pieG = _bodyG.append("g")
+                        .attr("class", "pie")
+                        .attr("transform", "translate(" 
+                            + _radius 
+                            + "," 
+                            + _radius + ")");
+
+            renderSlices(pie, arc);
+
+            renderLabels(pie, arc);
+        }
+
+        function renderSlices(pie, arc) {
+            var slices = _pieG.selectAll("path.arc")
+                    .data(pie(_data)); // <-B
+
+            slices.enter()
+                    .append("path")
+                    .attr("class", "arc")
+                    .attr("fill", function (d, i) {
+                        return _colors(i);
+                    });
+
+            slices.transition()
+                    .attrTween("d", function (d) {
+                        var currentArc = this.__current__; // <-C
+
+                        if (!currentArc)
+                            currentArc = {startAngle: 0, 
+                                            endAngle: 0};
+
+                        var interpolate = d3.interpolate(
+                                            currentArc, d);
+                                            
+                        this.__current__ = interpolate(1);//<-D
+                        
+                        return function (t) {
+                            return arc(interpolate(t));
+                        };
+                    });
+        }
+
+        function renderLabels(pie, arc) {
+            var labels = _pieG.selectAll("text.label")
+                    .data(pie(_data)); // <-E
+
+            labels.enter()
+                    .append("text")
+                    .attr("class", "label");
+
+            labels.transition()
+                    .attr("transform", function (d) {
+                        return "translate(" 
+                            + arc.centroid(d) + ")"; // <-F
+                    })
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "middle")
+                    .text(function (d) {
+                        return d.data.value;//这里显示颜色的高度//d.data.id+1
+                    });
+        }
+
+		function xStart() {//为了让pie居中
+			return _margins.left;
+		}
+
+		function yStart() {
+			return _height - _margins.bottom;
+		}
+
+		function xEnd() {
+			return _width - _margins.right;
+		}
+
+		function yEnd() {
+			return _margins.top;
+		}
+				
+		_chart.margins = function (m) {
+			if (!arguments.length) return _margins;
+			_margins = m;
+			return _chart;
+		};///////////////////////////////////////////////////
+		
+        _chart.width = function (w) {
+            if (!arguments.length) return _width;
+            _width = w;
+            return _chart;
+        };
+
+        _chart.height = function (h) {
+            if (!arguments.length) return _height;
+            _height = h;
+            return _chart;
+        };
+
+        _chart.colors = function (c) {
+            if (!arguments.length) return _colors;
+            _colors = c;
+            return _chart;
+        };
+
+        _chart.radius = function (r) {
+            if (!arguments.length) return _radius;
+            _radius = r;
+            return _chart;
+        };
+
+        _chart.innerRadius = function (r) {
+            if (!arguments.length) return _innerRadius;
+            _innerRadius = r;
+            return _chart;
+        };
+
+        _chart.data = function (d) {
+            if (!arguments.length) return _data;
+            _data = d;
+            return _chart;
+        };
+
+        return _chart;
+    }
+
+    var numberOfDataPoint = 10;
+            colorValue = [550, 365, 331, 153, 137, 127, 96, 93, 82, 80];//10色高度值
+
+    colorValue = d3.range(numberOfDataPoint).map(function (i) {
+        return {id: i, value: colorValue[i]};//a1=63, a10=9, k=6//data自动按比份分//赋值给value
+    });
+
+    var chart = pieChart()
+            .radius(145)
+            .innerRadius(65)
+            .data(colorValue);
+
+    chart.render();
+}
+
+	//渐变条
+    var max = 91, data = [];
+
+    function divergingScale() { // <-B
+        var divergingColorScale = d3.scale.linear()
+            //.domain([0, 5, 10, 15, 20, 25 ,30, 35, 40, 45]) // <-C
+			.domain([0, 10, 20, 30, 40, 50 ,60, 70, 80, 90])
+            .range(["rgb(223,223,223)", "rgb(223,223,223)", "rgb(223,216,195)", "rgb(223,205,195)", "rgb(223,223,223)", "rgb(223,99,28)", "rgb(191,161,143)", "rgb(223,188,167)", "rgb(128,107,48)", "rgb(191,24,24)"]);
+        return divergingColorScale;
+    }
+	
+    for (var i = 0; i < max; ++i) data.push(i);
+
+    function ColorBoxRender(data, scale, selector) { // <-D
+        d3.select(selector).selectAll("div.cell")
+                .data(data)
+            .enter()
+                .append("div")
+                    .classed("cell", true)
+                .append("span");
+
+        d3.select(selector).selectAll("div.cell")
+                .data(data)
+            .exit().remove();
+
+        d3.select(selector).selectAll("div.cell")
+                .data(data)
+					.style("min-width", "0px")
+					.style("max-width", "0px")
+					.style("background-color", function(d){
+						return scale(d); // <-E
+						})
+						
+				.transition()
+				.duration(1200)
+					.style("display", "inline-block")
+					.style("min-width", "32px")
+					.style("max-width", "100px")
+					
+            .select("span")
+                .text(function(d,i){
+						if( i%10==0 )
+							return scale(d);});//(function(d,i){return i;});//分类标数字
+												//(function (d) {return scale(d);});//分类标十六进制
+    }
+
+	Line();
+	ColorBoxRender(data, divergingScale(), "#color-diverge");
+	
+</script>
+
+
+
+
+
+</body>
+
+</html>
